@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flight Database</title>
+  <style>
+    body { font-family: sans-serif; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    th { background: #ccc; }
+    .error { background-color: #ffb3b3; }
+  </style>
+</head>
+<body>
+
+  <button onclick="switchTab('arrivals')">Arrivals</button>
+  <button onclick="switchTab('departures')">Departures</button>
+
+  <!-- ARRIVALS -->
+  <div id="arrivals" class="tab active">
+    <h2>Arrivals</h2>
+    <form id="arrivalForm">
+      <input placeholder="Airline" name="airline">
+      <input placeholder="Flight" name="flight">
+      <input placeholder="From" name="from">
+      <input placeholder="ICAO" name="icao">
+      <input placeholder="Time" name="time" type="time">
+      <input placeholder="Aircraft" name="aircraft">
+      TPS: <input placeholder="TPS" name="tps" style="width:40px">
+      <br>Days:
+      <label><input type="checkbox" name="days" value="Mon">Mon</label>
+      <label><input type="checkbox" name="days" value="Tue">Tue</label>
+      <label><input type="checkbox" name="days" value="Wed">Wed</label>
+      <label><input type="checkbox" name="days" value="Thu">Thu</label>
+      <label><input type="checkbox" name="days" value="Fri">Fri</label>
+      <label><input type="checkbox" name="days" value="Sat">Sat</label>
+      <label><input type="checkbox" name="days" value="Sun">Sun</label>
+      <br><button type="submit">Add Arrival</button>
+    </form>
+    <table id="arrivalTable">
+      <thead>
+        <tr><th>Airline</th><th>Flight</th><th>From</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Frequency</th><th>TPS</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- DEPARTURES -->
+  <div id="departures" class="tab">
+    <h2>Departures</h2>
+    <form id="departureForm">
+      <input placeholder="Airline" name="airline">
+      <input placeholder="Flight" name="flight">
+      <input placeholder="To" name="to">
+      <input placeholder="ICAO" name="icao">
+      <input placeholder="Time" name="time" type="time">
+      <input placeholder="Aircraft" name="aircraft">
+      TPS: <input placeholder="TPS" name="tps" style="width:40px">
+      <br>Days:
+      <label><input type="checkbox" name="days" value="Mon">Mon</label>
+      <label><input type="checkbox" name="days" value="Tue">Tue</label>
+      <label><input type="checkbox" name="days" value="Wed">Wed</label>
+      <label><input type="checkbox" name="days" value="Thu">Thu</label>
+      <label><input type="checkbox" name="days" value="Fri">Fri</label>
+      <label><input type="checkbox" name="days" value="Sat">Sat</label>
+      <label><input type="checkbox" name="days" value="Sun">Sun</label>
+      <br><button type="submit">Add Departure</button>
+    </form>
+    <table id="departureTable">
+      <thead>
+        <tr><th>Airline</th><th>Flight</th><th>To</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Frequency</th><th>TPS</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function serializeEntry(flight, icao, time) {
+  return `${flight.trim().toUpperCase()}-${icao.trim().toUpperCase()}-${time}`;
+}
+
+function getDaysString(form) {
+  return [...form.querySelectorAll('input[name="days"]:checked')].map(d => d.value).join(', ');
+}
+
+function addRow(form, tableId, keySet) {
+  const data = {};
+  form.querySelectorAll('input[name]').forEach(input => {
+    if (input.type !== "checkbox") data[input.name] = input.value.trim();
+  });
+  const days = getDaysString(form);
+  const key = serializeEntry(data.flight, data.icao, data.time);
+
+  if (keySet.has(key)) {
+    alert("Duplicata detectada!");
+    return;
+  }
+  keySet.add(key);
+
+  const row = document.createElement('tr');
+  Object.values(data).forEach(v => {
+    const td = document.createElement('td');
+    td.textContent = v;
+    row.appendChild(td);
+  });
+
+  const freqTd = document.createElement('td');
+  freqTd.textContent = days;
+  row.appendChild(freqTd);
+
+  const tpsTd = document.createElement('td');
+  tpsTd.textContent = data.tps;
+  row.appendChild(tpsTd);
+
+  document.querySelector(`#${tableId} tbody`).appendChild(row);
+  form.reset();
+}
+
+const arrivalKeys = new Set();
+const departureKeys = new Set();
+
+document.getElementById('arrivalForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  addRow(this, 'arrivalTable', arrivalKeys);
+});
+document.getElementById('departureForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  addRow(this, 'departureTable', departureKeys);
+});
+</script>
+
+</body>
+</html>
