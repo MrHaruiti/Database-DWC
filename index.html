@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +18,6 @@
   <button onclick="switchTab('arrivals')">Arrivals</button>
   <button onclick="switchTab('departures')">Departures</button>
 
-  <!-- ARRIVALS -->
   <div id="arrivals" class="tab active">
     <h2>Arrivals</h2>
     <form id="arrivalForm">
@@ -46,27 +46,8 @@
     </table>
   </div>
 
-  <!-- DEPARTURES -->
   <div id="departures" class="tab">
     <h2>Departures</h2>
-    <form id="departureForm">
-      <input placeholder="Airline" name="airline">
-      <input placeholder="Flight" name="flight">
-      <input placeholder="To" name="to">
-      <input placeholder="ICAO" name="icao">
-      <input placeholder="Time" name="time" type="time">
-      <input placeholder="Aircraft" name="aircraft">
-      TPS: <input placeholder="TPS" name="tps" style="width:40px">
-      <br>Days:
-      <label><input type="checkbox" name="days" value="Mon">Mon</label>
-      <label><input type="checkbox" name="days" value="Tue">Tue</label>
-      <label><input type="checkbox" name="days" value="Wed">Wed</label>
-      <label><input type="checkbox" name="days" value="Thu">Thu</label>
-      <label><input type="checkbox" name="days" value="Fri">Fri</label>
-      <label><input type="checkbox" name="days" value="Sat">Sat</label>
-      <label><input type="checkbox" name="days" value="Sun">Sun</label>
-      <br><button type="submit">Add Departure</button>
-    </form>
     <table id="departureTable">
       <thead>
         <tr><th>Airline</th><th>Flight</th><th>To</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Frequency</th><th>TPS</th></tr>
@@ -89,49 +70,104 @@ function getDaysString(form) {
   return [...form.querySelectorAll('input[name="days"]:checked')].map(d => d.value).join(', ');
 }
 
-function addRow(form, tableId, keySet) {
-  const data = {};
-  form.querySelectorAll('input[name]').forEach(input => {
-    if (input.type !== "checkbox") data[input.name] = input.value.trim();
-  });
-  const days = getDaysString(form);
-  const key = serializeEntry(data.flight, data.icao, data.time);
-
-  if (keySet.has(key)) {
-    alert("Duplicata detectada!");
-    return;
-  }
-  keySet.add(key);
-
+function createRow(data, fields) {
   const row = document.createElement('tr');
-  Object.values(data).forEach(v => {
+  fields.forEach(f => {
     const td = document.createElement('td');
-    td.textContent = v;
+    td.textContent = data[f] || '';
     row.appendChild(td);
   });
-
-  const freqTd = document.createElement('td');
-  freqTd.textContent = days;
-  row.appendChild(freqTd);
-
-  const tpsTd = document.createElement('td');
-  tpsTd.textContent = data.tps;
-  row.appendChild(tpsTd);
-
-  document.querySelector(`#${tableId} tbody`).appendChild(row);
-  form.reset();
+  return row;
 }
 
 const arrivalKeys = new Set();
 const departureKeys = new Set();
 
+const narrowbody = ['E190','E195','A318','A319','A320','A321','B732','B733','B734','B735','B736','B737','B738','B739','B73X'];
+const widebody = ['A306','A312','A313','A332','A333','A338','A339','A342','A343','A345','A346','A359','A35K','A388',
+                  'B742','B743','B744','B748','B752','B753','B762','B763','B764','B772','B77L','B77W','B778','B779','B788','B789','B78X'];
+
+function parseTimePlus(originalTime, minutesToAdd) {
+  let [h, m] = originalTime.split(":").map(Number);
+  let total = h * 60 + m + minutesToAdd;
+  total = total % (24 * 60);
+  let nh = String(Math.floor(total / 60)).padStart(2, '0');
+  let nm = String(total % 60).padStart(2, '0');
+  return `${nh}:${nm}`;
+}
+
+function getExtraMinutes(icao, aircraft) {
+  const first = icao.charAt(0).toUpperCase();
+  aircraft = aircraft.toUpperCase();
+  if (narrowbody.includes(aircraft)) {
+    return first === 'O' ? 60 : 120;
+  } else if (widebody.includes(aircraft)) {
+    if (first === 'O') return 60;
+    if (['U','H'].includes(first)) return 90;
+    if (['D','F','G'].includes(first)) return 120;
+    if (['B','E','L','V'].includes(first)) return 180;
+    if (['Z','R','W'].includes(first)) return 240;
+    return 300;
+  }
+  return 120; // default fallback
+}
+
+function addDepartureFromArrival(arrivalData) {
+  const airline = arrivalData.airline.toUpperCase();
+  const isEmiratesOrFlydubai = airline.includes("EMIRATES") || airline.includes("FLYDUBAI");
+
+  let newFlight = parseInt(arrivalData.flight);
+  newFlight = isNaN(newFlight) ? arrivalData.flight : (isEmiratesOrFlydubai ? newFlight - 1 : newFlight + 1);
+  newFlight = newFlight.toString().padStart(4, '0');
+
+  let depTime = "";
+  if (isEmiratesOrFlydubai) {
+    depTime = prompt(`Insira o horário do Departure para o voo ${newFlight} (${arrivalData.airline})`, arrivalData.time);
+    if (!depTime) return;
+  } else {
+    const addMin = getExtraMinutes(arrivalData.icao, arrivalData.aircraft);
+    depTime = parseTimePlus(arrivalData.time, addMin);
+  }
+
+  const depKey = serializeEntry(newFlight, arrivalData.icao, depTime);
+  if (departureKeys.has(depKey)) return;
+  departureKeys.add(depKey);
+
+  const depData = {
+    airline: arrivalData.airline,
+    flight: newFlight,
+    to: arrivalData.from,
+    icao: arrivalData.icao,
+    time: depTime,
+    aircraft: arrivalData.aircraft,
+    days: arrivalData.days,
+    tps: arrivalData.tps
+  };
+
+  const row = createRow(depData, ['airline','flight','to','icao','time','aircraft','days','tps']);
+  document.querySelector("#departureTable tbody").appendChild(row);
+}
+
 document.getElementById('arrivalForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  addRow(this, 'arrivalTable', arrivalKeys);
-});
-document.getElementById('departureForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  addRow(this, 'departureTable', departureKeys);
+  const form = this;
+  const data = {};
+  form.querySelectorAll('input[name]').forEach(input => {
+    if (input.type !== "checkbox") data[input.name] = input.value.trim();
+  });
+  data.days = getDaysString(form);
+
+  const key = serializeEntry(data.flight, data.icao, data.time);
+  if (arrivalKeys.has(key)) {
+    alert("Duplicata detectada!");
+    return;
+  }
+  arrivalKeys.add(key);
+  const row = createRow(data, ['airline','flight','from','icao','time','aircraft','days','tps']);
+  document.querySelector("#arrivalTable tbody").appendChild(row);
+
+  addDepartureFromArrival(data);
+  form.reset();
 });
 </script>
 
