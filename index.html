@@ -41,7 +41,7 @@
     <table id="arrivalTable">
       <thead>
         <tr><th>Airline</th><th>Flight</th><th>From</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Frequency</th><th>TPS</th></tr>
-      </thead>
+      <th>Excluir</th></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -51,7 +51,7 @@
     <table id="departureTable">
       <thead>
         <tr><th>Airline</th><th>Flight</th><th>To</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Frequency</th><th>TPS</th></tr>
-      </thead>
+      <th>Excluir</th></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -130,7 +130,16 @@ function addDepartureFromArrival(arrivalData) {
   }
 
   const depKey = serializeEntry(newFlight, arrivalData.icao, depTime);
-  if (departureKeys.has(depKey)) return;
+  
+  const departureTableBody = document.querySelector("#departureTable tbody");
+  const depConflict = [...departureTableBody.querySelectorAll("tr")].some(tr =>
+    tr.children[4].textContent === depTime && tr.children[7].textContent === arrivalData.tps
+  );
+  if (depConflict) {
+    alert("Conflito de horário no mesmo TPS (Departure)!");
+    return;
+  }
+
   departureKeys.add(depKey);
 
   const depData = {
@@ -145,7 +154,17 @@ function addDepartureFromArrival(arrivalData) {
   };
 
   const row = createRow(depData, ['airline','flight','to','icao','time','aircraft','days','tps']);
-  document.querySelector("#departureTable tbody").appendChild(row);
+  
+  const delTd2 = document.createElement('td');
+  const delBtn2 = document.createElement('button');
+  delBtn2.textContent = 'X';
+  delBtn2.onclick = function() {
+    departureTableBody.removeChild(row);
+    departureKeys.delete(depKey);
+  };
+  delTd2.appendChild(delBtn2);
+  row.appendChild(delTd2);
+
 }
 
 document.getElementById('arrivalForm').addEventListener('submit', function(e) {
@@ -158,13 +177,51 @@ document.getElementById('arrivalForm').addEventListener('submit', function(e) {
   data.days = getDaysString(form);
 
   const key = serializeEntry(data.flight, data.icao, data.time);
-  if (arrivalKeys.has(key)) {
+  
+  const arrivalTableBody = document.querySelector("#arrivalTable tbody");
+  const conflict = [...arrivalTableBody.querySelectorAll("tr")].some(tr =>
+    tr.children[4].textContent === data.time && tr.children[7].textContent === data.tps
+  );
+  if (conflict) {
+    alert("Conflito de horário no mesmo TPS!");
+    return;
+  }
+
     alert("Duplicata detectada!");
     return;
   }
   arrivalKeys.add(key);
   const row = createRow(data, ['airline','flight','from','icao','time','aircraft','days','tps']);
-  document.querySelector("#arrivalTable tbody").appendChild(row);
+  
+  const delTd = document.createElement('td');
+  const delBtn = document.createElement('button');
+  delBtn.textContent = 'X';
+  delBtn.onclick = function() {
+    arrivalTableBody.removeChild(row);
+    arrivalKeys.delete(key);
+
+    const depFlight = airline.includes("EMIRATES") || airline.includes("FLYDUBAI")
+      ? (parseInt(data.flight) - 1).toString().padStart(4, '0')
+      : (parseInt(data.flight) + 1).toString().padStart(4, '0');
+
+    const depTime = airline.includes("EMIRATES") || airline.includes("FLYDUBAI")
+      ? prompt("Digite novamente o horário do Departure que será removido (voo " + depFlight + "):")
+      : parseTimePlus(data.time, getExtraMinutes(data.icao, data.aircraft));
+
+    const depKey = serializeEntry(depFlight, data.icao, depTime);
+    const depRows = departureTableBody.querySelectorAll("tr");
+    depRows.forEach(tr => {
+      if (tr.children[1].textContent === depFlight &&
+          tr.children[3].textContent === data.icao &&
+          tr.children[4].textContent === depTime) {
+        departureTableBody.removeChild(tr);
+        departureKeys.delete(depKey);
+      }
+    });
+  };
+  delTd.appendChild(delBtn);
+  row.appendChild(delTd);
+
 
   addDepartureFromArrival(data);
   form.reset();
