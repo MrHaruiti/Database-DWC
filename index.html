@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Flight Database Completo</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
 <body>
   <header class="main-header">
-    <img src="https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg" alt="Flight background" class="header-bg">
+    <img src="https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg" alt="Flight background" class="header-bg" />
     <h1 class="header-title">Flight Database Completo</h1>
   </header>
 
@@ -28,35 +28,35 @@
           <div class="form-row">
             <div class="form-group">
               <label>Airline:</label>
-              <input name="airline" required>
+              <input name="airline" required />
             </div>
             <div class="form-group">
               <label>Flight:</label>
-              <input name="flight" required>
+              <input name="flight" required />
             </div>
             <div class="form-group">
               <label>From:</label>
-              <input name="from" required>
+              <input name="from" required />
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>ICAO:</label>
-              <input name="icao" required>
+              <input name="icao" required />
             </div>
             <div class="form-group">
               <label>Time:</label>
-              <input name="time" type="time" required>
+              <input name="time" type="time" required />
             </div>
             <div class="form-group">
               <label>Aircraft:</label>
-              <input name="aircraft" required>
+              <input name="aircraft" required />
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>TPS:</label>
-              <input name="tps" required>
+              <input name="tps" required />
             </div>
             <div class="form-group">
               <label>Frequência:</label>
@@ -72,16 +72,25 @@
           <div class="frequency-days" id="frequencyDays" style="display: none;">
             <label>Dias da Semana:</label>
             <div class="days-checkboxes">
-              <label><input type="checkbox" value="1"> Dom</label>
-              <label><input type="checkbox" value="2"> Seg</label>
-              <label><input type="checkbox" value="3"> Ter</label>
-              <label><input type="checkbox" value="4"> Qua</label>
-              <label><input type="checkbox" value="5"> Qui</label>
-              <label><input type="checkbox" value="6"> Sex</label>
-              <label><input type="checkbox" value="7"> Sáb</label>
+              <label><input type="checkbox" value="1" /> Dom</label>
+              <label><input type="checkbox" value="2" /> Seg</label>
+              <label><input type="checkbox" value="3" /> Ter</label>
+              <label><input type="checkbox" value="4" /> Qua</label>
+              <label><input type="checkbox" value="5" /> Qui</label>
+              <label><input type="checkbox" value="6" /> Sex</label>
+              <label><input type="checkbox" value="7" /> Sáb</label>
             </div>
           </div>
         </form>
+      </div>
+
+      <!-- Import/Export Section -->
+      <div class="import-export-container" style="margin-top: 2rem;">
+        <h3>Import / Export Flights</h3>
+        <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" />
+        <button id="importButton" class="import-button">Import</button>
+        <button id="exportJsonButton" class="export-button">Export JSON</button>
+        <button id="exportXlsxButton" class="export-button">Export XLSX</button>
       </div>
     </div>
 
@@ -167,8 +176,9 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script type="module" src="main.js.part1.js"></script>
   <script type="module" src="main.js.part2.chunk1.js"></script>
   <script type="module" src="main.js.part2.chunk2.js"></script>
-  <script type="module" src="main.js.part1.js"></script>
 </body>
 </html>
