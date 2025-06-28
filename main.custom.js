@@ -82,6 +82,27 @@ departuresTableBody.addEventListener('click', (e) => {
   }
 });
 
+// Tab switching functionality
+const tabButtons = document.querySelectorAll('.tab-nav button');
+const tabs = document.querySelectorAll('.tab');
+
+tabButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const target = button.getAttribute('data-target');
+
+    // Remove active class from all buttons and tabs
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    // Add active class to clicked button and corresponding tab
+    button.classList.add('active');
+    const activeTab = document.getElementById(target);
+    if (activeTab) {
+      activeTab.classList.add('active');
+    }
+  });
+});
+
 // Import and Export handlers
 
 const importFileInput = document.getElementById('importFileInput');
