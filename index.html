@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Flight Database Completo</title>
+  <title>Dubai World Central - Al Maktoum International Airport</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
 <body>
   <header class="main-header">
     <img src="https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg" alt="Flight background" class="header-bg" />
-    <h1 class="header-title">Flight Database Completo</h1>
+    <h1 class="header-title">Dubai World Central - Al Maktoum International Airport</h1>
   </header>
 
   <div class="container">
@@ -19,6 +19,7 @@
       <button id="tabArrivals" data-target="arrivals">Arrivals</button>
       <button id="tabDepartures" data-target="departures">Departures</button>
       <button id="tabBackup" data-target="backup">Backup</button>
+      <button id="tabStats" data-target="stats">Estatísticas</button>
     </nav>
 
     <div id="input" class="tab active">
@@ -82,15 +83,6 @@
             </div>
           </div>
         </form>
-      </div>
-
-      <!-- Import/Export Section -->
-      <div class="import-export-container" style="margin-top: 2rem;">
-        <h3>Import / Export Flights</h3>
-        <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" />
-        <button id="importButton" class="import-button">Import</button>
-        <button id="exportJsonButton" class="export-button">Export JSON</button>
-        <button id="exportXlsxButton" class="export-button">Export XLSX</button>
       </div>
     </div>
 
@@ -156,28 +148,25 @@
         <div class="backup-action">
           <button id="backupButton" class="backup-button">Create Backup</button>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Modal for backup confirmation -->
-  <div id="backupModal" class="modal" aria-hidden="true">
-    <div class="modal-content">
-      <span class="modal-close">&times;</span>
-      <h2>Confirm Backup</h2>
-      <div class="modal-body">
-        <p>Are you sure you want to backup the flight database?</p>
-        <p class="modal-info">This process may take a few moments.</p>
-        <div class="modal-actions">
-          <button id="confirmBackup" class="confirm-button">Yes, Backup Now</button>
-          <button class="cancel-button modal-close">Cancel</button>
+        <!-- Import/Export Section moved here -->
+        <div class="import-export-container" style="margin-top: 2rem;">
+          <h3>Import / Export Flights</h3>
+          <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" />
+          <button id="importButton" class="import-button">Import</button>
+          <button id="exportJsonButton" class="export-button">Export JSON</button>
+          <button id="exportXlsxButton" class="export-button">Export XLSX</button>
         </div>
       </div>
+    </div>
+
+    <div id="stats" class="tab">
+      <!-- Empty placeholder for Estatísticas tab -->
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script type="module" src="main.js.part1.js"></script>
+  <script type="module" src="main.custom.js"></script>
   <script type="module" src="main.js.part2.chunk1.js"></script>
   <script type="module" src="main.js.part2.chunk2.js"></script>
 </body>
