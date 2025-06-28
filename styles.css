@@ -1,0 +1,27 @@
+diff --git a//dev/null b/styles.css
+index 0000000000000000000000000000000000000000..02611318f95a26697fefdfcff6ec43738b371fd9 100644
+--- a//dev/null
++++ b/styles.css
+@@ -0,0 +1,22 @@
++body { font-family: sans-serif; background-color: black; color: #FFFF99; margin: 0; padding: 10px; }
++.tab { display: none; }
++.tab.active { display: block; }
++table { width: 100%; }
++table, th, td { border: 1px solid #FFFF99; border-collapse: collapse; padding: 5px; }
++th { background: #222; color: #40E0D0; }
++label, .title { color: #40E0D0; font-weight: bold; }
++input, select, button { margin: 5px; padding: 5px; width: 100%; max-width: 300px; display: block; }
++.row { display: flex; flex-direction: column; max-width: 320px; }
++td button { margin-right: 4px; }
++@media (min-width: 768px) {
++  .row {
++    flex-direction: row;
++    flex-wrap: wrap;
++    max-width: none;
++  }
++  input, select, button {
++    width: auto;
++    max-width: none;
++    flex: 1 0 200px;
++  }
++}
