@@ -1,3 +1,5 @@
+import { FlightManager } from './flightManager.js';
+
 document.addEventListener('DOMContentLoaded', function() {
   try {
     // Frequency days checkbox toggle
