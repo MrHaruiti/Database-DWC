@@ -1,52 +1,172 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/index.html b/index.html
-index 29e68508b66b9a590f09904fed78fc25d75b4c9b..2811a0da53d9fee346e78fc8226cd9794dc4299e 100644
---- a/index.html
-+++ b/index.html
-@@ -1,42 +1,32 @@
- 
- <!DOCTYPE html>
- <html lang="en">
- <head>
-   <meta charset="UTF-8">
-   <title>Flight Database Completo</title>
--  <style>
--    body { font-family: sans-serif; background-color: black; color: #FFFF99; margin: 0; padding: 10px; }
--    .tab { display: none; }
--    .tab.active { display: block; }
--    table, th, td { border: 1px solid #FFFF99; border-collapse: collapse; padding: 5px; }
--    th { background: #222; color: #40E0D0; }
--    label, .title { color: #40E0D0; font-weight: bold; }
--    input, select, button { margin: 5px; padding: 5px; width: 100%; max-width: 300px; display: block; }
--    .row { display: flex; flex-direction: column; max-width: 320px; }
--    td button { margin-right: 4px; }
--  </style>
-+  <link rel="stylesheet" href="styles.css">
- </head>
- <body>
- 
- <button onclick="switchTab('arrivals')">Arrivals</button>
- <button onclick="switchTab('departures')">Departures</button>
- <button onclick="switchTab('backup')">Backup</button>
- 
- <div id="arrivals" class="tab active">
-   <h2 class="title">Arrivals</h2>
-   <form id="arrivalForm" class="row">
-     <label>Airline: <input name="airline"></label>
-     <label>Flight: <input name="flight"></label>
-     <label>From: <input name="from"></label>
-     <label>ICAO: <input name="icao"></label>
-     <label>Time: <input name="time" type="time"></label>
-     <label>Aircraft: <input name="aircraft"></label>
-     <label>TPS: <input name="tps"></label>
- 
-     <label>Frequência:
-       <select id="freqMode" onchange="toggleFrequencyMode()">
-         <option value="diario">Diário</option>
-         <option value="semanal">Semanal</option>
-       </select>
-     </label>
- 
- 
-EOF
-)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Database Completo</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header class="main-header">
+    <img src="https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg" alt="Flight background" class="header-bg">
+    <h1 class="header-title">Flight Database Completo</h1>
+  </header>
+
+  <div class="container">
+    <nav class="tab-nav" role="navigation">
+      <button id="tabInput" data-target="input" class="active">Input</button>
+      <button id="tabArrivals" data-target="arrivals">Arrivals</button>
+      <button id="tabDepartures" data-target="departures">Departures</button>
+      <button id="tabBackup" data-target="backup">Backup</button>
+    </nav>
+
+    <div id="input" class="tab active">
+      <h2 class="title">Flight Input</h2>
+      <div class="form-container">
+        <form id="flightForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Airline:</label>
+              <input name="airline" required>
+            </div>
+            <div class="form-group">
+              <label>Flight:</label>
+              <input name="flight" required>
+            </div>
+            <div class="form-group">
+              <label>From:</label>
+              <input name="from" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>ICAO:</label>
+              <input name="icao" required>
+            </div>
+            <div class="form-group">
+              <label>Time:</label>
+              <input name="time" type="time" required>
+            </div>
+            <div class="form-group">
+              <label>Aircraft:</label>
+              <input name="aircraft" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>TPS:</label>
+              <input name="tps" required>
+            </div>
+            <div class="form-group">
+              <label>Frequência:</label>
+              <select id="freqType" required>
+                <option value="diario">Diário</option>
+                <option value="semanal">Semanal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="submit-button">Add Flight</button>
+            </div>
+          </div>
+          <div class="frequency-days" id="frequencyDays" style="display: none;">
+            <label>Dias da Semana:</label>
+            <div class="days-checkboxes">
+              <label><input type="checkbox" value="1"> Dom</label>
+              <label><input type="checkbox" value="2"> Seg</label>
+              <label><input type="checkbox" value="3"> Ter</label>
+              <label><input type="checkbox" value="4"> Qua</label>
+              <label><input type="checkbox" value="5"> Qui</label>
+              <label><input type="checkbox" value="6"> Sex</label>
+              <label><input type="checkbox" value="7"> Sáb</label>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="arrivals" class="tab">
+      <h2 class="title">Arrivals</h2>
+      <div class="table-container">
+        <table id="arrivalsTable">
+          <thead>
+            <tr>
+              <th>Airline</th>
+              <th>Flight</th>
+              <th>From</th>
+              <th>ICAO</th>
+              <th>Time</th>
+              <th>Aircraft</th>
+              <th>TPS</th>
+              <th>Frequência</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Arrival flights will be added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="departures" class="tab">
+      <h2 class="title">Departures</h2>
+      <div class="table-container">
+        <table id="departuresTable">
+          <thead>
+            <tr>
+              <th>Airline</th>
+              <th>Flight</th>
+              <th>To</th>
+              <th>ICAO</th>
+              <th>Time</th>
+              <th>Aircraft</th>
+              <th>TPS</th>
+              <th>Frequência</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Departure flights will be added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="backup" class="tab">
+      <h2 class="title">Backup Database</h2>
+      <div class="backup-container">
+        <div class="backup-info">
+          <p>Create a secure backup of your flight database. This will include:</p>
+          <ul>
+            <li>All flight arrivals and departures</li>
+            <li>Schedule configurations</li>
+            <li>System settings</li>
+          </ul>
+        </div>
+        <div class="backup-action">
+          <button id="backupButton" class="backup-button">Create Backup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for backup confirmation -->
+  <div id="backupModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <h2>Confirm Backup</h2>
+      <div class="modal-body">
+        <p>Are you sure you want to backup the flight database?</p>
+        <p class="modal-info">This process may take a few moments.</p>
+        <div class="modal-actions">
+          <button id="confirmBackup" class="confirm-button">Yes, Backup Now</button>
+          <button class="cancel-button modal-close">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
