@@ -1,99 +1,52 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Flight Database Completo</title>
-  <style>
-    body { font-family: sans-serif; background-color: black; color: #FFFF99; margin: 0; padding: 10px; }
-    .tab { display: none; }
-    .tab.active { display: block; }
-    table, th, td { border: 1px solid #FFFF99; border-collapse: collapse; padding: 5px; }
-    th { background: #222; color: #40E0D0; }
-    label, .title { color: #40E0D0; font-weight: bold; }
-    input, select, button { margin: 5px; padding: 5px; width: 100%; max-width: 300px; display: block; }
-    .row { display: flex; flex-direction: column; max-width: 320px; }
-    td button { margin-right: 4px; }
-  </style>
-</head>
-<body>
-
-<button onclick="switchTab('arrivals')">Arrivals</button>
-<button onclick="switchTab('departures')">Departures</button>
-<button onclick="switchTab('backup')">Backup</button>
-
-<div id="arrivals" class="tab active">
-  <h2 class="title">Arrivals</h2>
-  <form id="arrivalForm" class="row">
-    <label>Airline: <input name="airline"></label>
-    <label>Flight: <input name="flight"></label>
-    <label>From: <input name="from"></label>
-    <label>ICAO: <input name="icao"></label>
-    <label>Time: <input name="time" type="time"></label>
-    <label>Aircraft: <input name="aircraft"></label>
-    <label>TPS: <input name="tps"></label>
-
-    <label>Frequência:
-      <select id="freqMode" onchange="toggleFrequencyMode()">
-        <option value="diario">Diário</option>
-        <option value="semanal">Semanal</option>
-      </select>
-    </label>
-
-    <div id="freqCheckboxes" style="display:none;">
-      <label><input type="checkbox" name="days" value="Mon">Mon</label>
-      <label><input type="checkbox" name="days" value="Tue">Tue</label>
-      <label><input type="checkbox" name="days" value="Wed">Wed</label>
-      <label><input type="checkbox" name="days" value="Thu">Thu</label>
-      <label><input type="checkbox" name="days" value="Fri">Fri</label>
-      <label><input type="checkbox" name="days" value="Sat">Sat</label>
-      <label><input type="checkbox" name="days" value="Sun">Sun</label>
-    </div>
-
-    <button type="submit">Adicionar Arrival</button>
-  </form>
-
-  <table id="arrivalTable">
-    <thead>
-      <tr><th>Airline</th><th>Flight</th><th>From</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Days</th><th>TPS</th><th>Ações</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div id="departures" class="tab">
-  <h2 class="title">Departures</h2>
-  <table id="departureTable">
-    <thead>
-      <tr><th>Airline</th><th>Flight</th><th>To</th><th>ICAO</th><th>Time</th><th>Aircraft</th><th>Days</th><th>TPS</th><th>Excluir</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div id="backup" class="tab">
-  <h2 class="title">Backup de Dados</h2>
-  <button onclick="exportBackup()">🔽 Exportar Backup</button>
-  <input type="file" id="backupFile" accept=".json">
-  <button onclick="importBackup()">🔼 Importar Backup</button>
-</div>
-
-<script>
-// mesma lógica da versão anterior: backup, tabs, edição, geração automática, salvamento
-// omitido por tamanho, mas será mantido funcional
-
-// ativação básica para tabs e placeholders
-function switchTab(id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function toggleFrequencyMode() {
-  const mode = document.getElementById("freqMode").value;
-  const box = document.getElementById("freqCheckboxes");
-  box.style.display = (mode === "semanal") ? "block" : "none";
-}
-</script>
-
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/index.html b/index.html
+index 29e68508b66b9a590f09904fed78fc25d75b4c9b..2811a0da53d9fee346e78fc8226cd9794dc4299e 100644
+--- a/index.html
++++ b/index.html
+@@ -1,42 +1,32 @@
+ 
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <title>Flight Database Completo</title>
+-  <style>
+-    body { font-family: sans-serif; background-color: black; color: #FFFF99; margin: 0; padding: 10px; }
+-    .tab { display: none; }
+-    .tab.active { display: block; }
+-    table, th, td { border: 1px solid #FFFF99; border-collapse: collapse; padding: 5px; }
+-    th { background: #222; color: #40E0D0; }
+-    label, .title { color: #40E0D0; font-weight: bold; }
+-    input, select, button { margin: 5px; padding: 5px; width: 100%; max-width: 300px; display: block; }
+-    .row { display: flex; flex-direction: column; max-width: 320px; }
+-    td button { margin-right: 4px; }
+-  </style>
++  <link rel="stylesheet" href="styles.css">
+ </head>
+ <body>
+ 
+ <button onclick="switchTab('arrivals')">Arrivals</button>
+ <button onclick="switchTab('departures')">Departures</button>
+ <button onclick="switchTab('backup')">Backup</button>
+ 
+ <div id="arrivals" class="tab active">
+   <h2 class="title">Arrivals</h2>
+   <form id="arrivalForm" class="row">
+     <label>Airline: <input name="airline"></label>
+     <label>Flight: <input name="flight"></label>
+     <label>From: <input name="from"></label>
+     <label>ICAO: <input name="icao"></label>
+     <label>Time: <input name="time" type="time"></label>
+     <label>Aircraft: <input name="aircraft"></label>
+     <label>TPS: <input name="tps"></label>
+ 
+     <label>Frequência:
+       <select id="freqMode" onchange="toggleFrequencyMode()">
+         <option value="diario">Diário</option>
+         <option value="semanal">Semanal</option>
+       </select>
+     </label>
+ 
+ 
+EOF
+)
