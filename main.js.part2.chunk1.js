@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         flightManager.addFlight(flight);
+        flightManager.save();
         updateTables();
         flightForm.reset();
         toggleFrequencyDays();
