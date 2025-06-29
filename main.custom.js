@@ -26,12 +26,44 @@ function clearTable(tableBody) {
 
 function renderArrivals() {
   clearTable(arrivalsTableBody);
-  // No data rendering due to missing flightManager
+  flightManager.arrivals.forEach((flight, index) => {
+    const frequencyDisplay = flight.frequency || 'Diário';
+    const row = document.createElement('tr');
+
+    row.innerHTML = 
+      '<td>' + flight.airline + '</td>' +
+      '<td>' + flight.flight + '</td>' +
+      '<td>' + flight.from + '</td>' +
+      '<td>' + flight.icao + '</td>' +
+      '<td>' + flight.time + '</td>' +
+      '<td>' + flight.aircraft + '</td>' +
+      '<td>' + flight.tps + '</td>' +
+      '<td>' + frequencyDisplay + '</td>' +
+      '<td><button data-index="' + index + '" class="delete-arrival">Delete</button></td>';
+
+    arrivalsTableBody.appendChild(row);
+  });
 }
 
 function renderDepartures() {
   clearTable(departuresTableBody);
-  // No data rendering due to missing flightManager
+  flightManager.departures.forEach((flight, index) => {
+    const frequencyDisplay = flight.frequency || 'Diário';
+    const row = document.createElement('tr');
+
+    row.innerHTML = 
+      '<td>' + flight.airline + '</td>' +
+      '<td>' + flight.flight + '</td>' +
+      '<td>' + flight.to + '</td>' +
+      '<td>' + flight.icao + '</td>' +
+      '<td>' + flight.time + '</td>' +
+      '<td>' + flight.aircraft + '</td>' +
+      '<td>' + flight.tps + '</td>' +
+      '<td>' + frequencyDisplay + '</td>' +
+      '<td><button data-index="' + index + '" class="delete-departure">Delete</button></td>';
+
+    departuresTableBody.appendChild(row);
+  });
 }
 
 function renderAll() {
