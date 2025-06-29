@@ -95,8 +95,28 @@ const importFileInput = document.getElementById('importFileInput');
 const importButton = document.getElementById('importButton');
 const exportJsonButton = document.getElementById('exportJsonButton');
 const exportXlsxButton = document.getElementById('exportXlsxButton');
+const backupButton = document.getElementById('backupButton');
 
 const flightForm = document.getElementById('flightForm');
+
+backupButton.addEventListener('click', () => {
+  try {
+    const backupData = {
+      arrivals: flightManager.arrivals,
+      departures: flightManager.departures,
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "flight_backup_" + new Date().toISOString() + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    alert('Backup created successfully!');
+  } catch (error) {
+    showErrorModal('Error creating backup: ' + error.message);
+  }
+});
 
 flightForm.addEventListener('submit', async (e) => {
   e.preventDefault();
