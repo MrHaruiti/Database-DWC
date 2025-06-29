@@ -31,15 +31,16 @@ export class FlightManager {
     const match = originalFlightNum.match(/^(\D*)(\d+)(\D*)$/);
     if (!match) {
       // If no numeric part, just return original or incremented number as string
-      const num = parseInt(originalFlightNum);
+      const num = parseInt(originalFlightNum, 10);
       if (isNaN(num)) return originalFlightNum;
-      return (num + increment).toString();
+      const newNum = num + increment;
+      return newNum.toString();
     }
     const prefix = match[1];
     const numStr = match[2];
     const suffix = match[3];
     const numLength = numStr.length;
-    let num = parseInt(numStr);
+    let num = parseInt(numStr, 10);
     num += increment;
     if (num < 0) num = 0;
     const numPadded = num.toString().padStart(numLength, '0');
