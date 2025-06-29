@@ -1,3 +1,5 @@
+console.log('main.custom.js script loaded');
+
 import { FlightManager } from './flightManager.js';
 
 const flightManager = new FlightManager();
@@ -123,6 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded and parsed - attaching tab event listeners');
   const tabButtons = document.querySelectorAll('.tab-nav button');
   const tabs = document.querySelectorAll('.tab');
+  console.log('Found tab buttons:', tabButtons.length);
+  console.log('Found tabs:', tabs.length);
 
   tabButtons.forEach(button => {
     console.log('Attaching click listener to button:', button.id);
