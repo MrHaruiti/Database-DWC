@@ -120,12 +120,15 @@ departuresTableBody.addEventListener('click', (e) => {
 
 // Tab switching functionality
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM fully loaded and parsed - attaching tab event listeners');
   const tabButtons = document.querySelectorAll('.tab-nav button');
   const tabs = document.querySelectorAll('.tab');
 
   tabButtons.forEach(button => {
+    console.log('Attaching click listener to button:', button.id);
     button.addEventListener('click', () => {
       const target = button.getAttribute('data-target');
+      console.log('Tab button clicked:', button.id, 'target:', target);
 
       // Remove active class from all buttons and tabs
       tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -275,4 +278,3 @@ async function getDepartureTimeFromModal(airline, arrivalTime) {
     departureTimeReject = reject;
   });
 }
-</create_file>
