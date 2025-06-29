@@ -146,7 +146,7 @@ const importButton = document.getElementById('importButton');
 const exportJsonButton = document.getElementById('exportJsonButton');
 const exportXlsxButton = document.getElementById('exportXlsxButton');
 
-importButton.addEventListener('click', () => {
+importButton.addEventListener('click', async () => {
   const file = importFileInput.files[0];
   if (!file) {
     showErrorModal('Please select a file to import.');
@@ -155,21 +155,21 @@ importButton.addEventListener('click', () => {
   const reader = new FileReader();
   const fileName = file.name.toLowerCase();
 
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
+      let data;
       if (fileName.endsWith('.json')) {
-        const data = JSON.parse(e.target.result);
-        importFlights(data);
+        data = JSON.parse(e.target.result);
       } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-        const data = e.target.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
+        const workbook = XLSX.read(e.target.result, { type: 'binary' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        importFlights(jsonData);
+        data = XLSX.utils.sheet_to_json(worksheet);
       } else {
         showErrorModal('Unsupported file format. Please select a JSON or XLSX file.');
+        return;
       }
+      await importFlightsSequential(data);
     } catch (error) {
       showErrorModal('Error importing file: ' + error.message);
     }
@@ -182,19 +182,30 @@ importButton.addEventListener('click', () => {
   }
 });
 
-function importFlights(flights) {
+async function importFlightsSequential(flights) {
   let conflicts = 0;
-  flights.forEach((flight) => {
+  for (const flight of flights) {
     try {
       // Normalize frequency field if needed
       if (!flight.frequency && flight.Frequência) {
         flight.frequency = flight.Frequência;
       }
-      flightManager.addFlight(flight);
+      // Check if flight already exists in arrivals
+      const exists = flightManager.arrivals.some(f =>
+        f.airline === flight.airline &&
+        f.flight === flight.flight &&
+        f.from === flight.from &&
+        f.tps === flight.tps &&
+        f.time === flight.time
+      );
+      if (exists) {
+        continue; // Skip duplicate
+      }
+      await flightManager.addFlight(flight, getDepartureTimeFromModal);
     } catch (e) {
       conflicts++;
     }
-  });
+  }
   if (conflicts > 0) {
     showErrorModal(conflicts + ' flights were not imported due to conflicts.');
   }
@@ -262,39 +273,4 @@ async function getDepartureTimeFromModal(airline, arrivalTime) {
     departureTimeReject = reject;
   });
 }
-
-// Flight form submission
-
-const flightForm = document.getElementById('flightForm');
-
-flightForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const formData = new FormData(flightForm);
-  let frequencyValue = formData.get('freqType');
-  if (!frequencyValue) {
-    frequencyValue = 'Diário';
-  }
-  const flight = {
-    airline: formData.get('airline').trim(),
-    flight: formData.get('flight').trim(),
-    from: formData.get('from').trim(),
-    icao: formData.get('icao').trim(),
-    time: formData.get('time').trim(),
-    aircraft: formData.get('aircraft').trim(),
-    tps: formData.get('tps').trim(),
-    frequency: frequencyValue,
-  };
-
-  try {
-    await flightManager.addFlight(flight, getDepartureTimeFromModal);
-    renderAll();
-    flightForm.reset();
-  } catch (error) {
-    showErrorModal(error.message);
-  }
-});
-
-// On page load, render all data
-document.addEventListener('DOMContentLoaded', () => {
-  renderAll();
-});
+</create_file>
