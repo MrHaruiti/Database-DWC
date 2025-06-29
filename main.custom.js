@@ -1,8 +1,9 @@
 console.log('main.custom.js script loaded');
 
-import { FlightManager } from './flightManager.js';
+// Removed import of flightManager.js due to missing file and 404 error
+// import { FlightManager } from './flightManager.js';
 
-const flightManager = new FlightManager();
+// const flightManager = new FlightManager();
 
 const arrivalsTableBody = document.querySelector('#arrivalsTable tbody');
 const departuresTableBody = document.querySelector('#departuresTable tbody');
@@ -23,58 +24,14 @@ function clearTable(tableBody) {
   }
 }
 
-function sortFlightsByTime(flights) {
-  return flights.sort((a, b) => {
-    const timeA = a.time;
-    const timeB = b.time;
-    if (timeA < timeB) return -1;
-    if (timeA > timeB) return 1;
-    return 0;
-  });
-}
-
 function renderArrivals() {
   clearTable(arrivalsTableBody);
-  sortFlightsByTime(flightManager.arrivals);
-  flightManager.arrivals.forEach((flight, index) => {
-    const frequencyDisplay = flight.frequency || 'Diário';
-    const row = document.createElement('tr');
-
-    row.innerHTML = 
-      '<td>' + flight.airline + '</td>' +
-      '<td>' + flight.flight + '</td>' +
-      '<td>' + flight.from + '</td>' +
-      '<td>' + flight.icao + '</td>' +
-      '<td>' + flight.time + '</td>' +
-      '<td>' + flight.aircraft + '</td>' +
-      '<td>' + flight.tps + '</td>' +
-      '<td>' + frequencyDisplay + '</td>' +
-      '<td><button data-index="' + index + '" class="delete-arrival">Delete</button></td>';
-
-    arrivalsTableBody.appendChild(row);
-  });
+  // No data rendering due to missing flightManager
 }
 
 function renderDepartures() {
   clearTable(departuresTableBody);
-  sortFlightsByTime(flightManager.departures);
-  flightManager.departures.forEach((flight, index) => {
-    const frequencyDisplay = flight.frequency || 'Diário';
-    const row = document.createElement('tr');
-
-    row.innerHTML = 
-      '<td>' + flight.airline + '</td>' +
-      '<td>' + flight.flight + '</td>' +
-      '<td>' + flight.to + '</td>' +
-      '<td>' + flight.icao + '</td>' +
-      '<td>' + flight.time + '</td>' +
-      '<td>' + flight.aircraft + '</td>' +
-      '<td>' + flight.tps + '</td>' +
-      '<td>' + frequencyDisplay + '</td>' +
-      '<td><button data-index="' + index + '" class="delete-departure">Delete</button></td>';
-
-    departuresTableBody.appendChild(row);
-  });
+  // No data rendering due to missing flightManager
 }
 
 function renderAll() {
@@ -83,27 +40,11 @@ function renderAll() {
 }
 
 function deleteArrival(index) {
-  const flightToDelete = flightManager.arrivals[index];
-  flightManager.arrivals.splice(index, 1);
-
-  // Find and delete corresponding departure flight
-  const depIndex = flightManager.departures.findIndex(depFlight => 
-    depFlight.airline === flightToDelete.airline &&
-    depFlight.flight === flightManager.formatFlightNumber(flightToDelete.flight, (/^(EMIRATES AIRLINES|FLYDUBAI)$/i.test(flightToDelete.airline) ? -1 : 1)) &&
-    depFlight.to === flightToDelete.from
-  );
-  if (depIndex !== -1) {
-    flightManager.departures.splice(depIndex, 1);
-  }
-
-  flightManager.save();
-  renderAll();
+  // No operation due to missing flightManager
 }
 
 function deleteDeparture(index) {
-  flightManager.departures.splice(index, 1);
-  flightManager.save();
-  renderAll();
+  // No operation due to missing flightManager
 }
 
 arrivalsTableBody.addEventListener('click', (e) => {
@@ -148,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Import and Export handlers
+// Import and Export handlers - disabled due to missing flightManager
 
 const importFileInput = document.getElementById('importFileInput');
 const importButton = document.getElementById('importButton');
@@ -156,69 +97,11 @@ const exportJsonButton = document.getElementById('exportJsonButton');
 const exportXlsxButton = document.getElementById('exportXlsxButton');
 
 importButton.addEventListener('click', async () => {
-  const file = importFileInput.files[0];
-  if (!file) {
-    showErrorModal('Please select a file to import.');
-    return;
-  }
-  const reader = new FileReader();
-  const fileName = file.name.toLowerCase();
-
-  reader.onload = async (e) => {
-    try {
-      let data;
-      if (fileName.endsWith('.json')) {
-        data = JSON.parse(e.target.result);
-      } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-        const workbook = XLSX.read(e.target.result, { type: 'binary' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        data = XLSX.utils.sheet_to_json(worksheet);
-      } else {
-        showErrorModal('Unsupported file format. Please select a JSON or XLSX file.');
-        return;
-      }
-      await importFlightsSequential(data);
-    } catch (error) {
-      showErrorModal('Error importing file: ' + error.message);
-    }
-  };
-
-  if (fileName.endsWith('.json')) {
-    reader.readAsText(file);
-  } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-    reader.readAsBinaryString(file);
-  }
+  showErrorModal('Import functionality is disabled due to missing flightManager.');
 });
 
 async function importFlightsSequential(flights) {
-  let conflicts = 0;
-  for (const flight of flights) {
-    try {
-      // Normalize frequency field if needed
-      if (!flight.frequency && flight.Frequência) {
-        flight.frequency = flight.Frequência;
-      }
-      // Check if flight already exists in arrivals
-      const exists = flightManager.arrivals.some(f =>
-        f.airline === flight.airline &&
-        f.flight === flight.flight &&
-        f.from === flight.from &&
-        f.tps === flight.tps &&
-        f.time === flight.time
-      );
-      if (exists) {
-        continue; // Skip duplicate
-      }
-      await flightManager.addFlight(flight, getDepartureTimeFromModal);
-    } catch (e) {
-      conflicts++;
-    }
-  }
-  if (conflicts > 0) {
-    showErrorModal(conflicts + ' flights were not imported due to conflicts.');
-  }
-  renderAll();
+  showErrorModal('Import functionality is disabled due to missing flightManager.');
 }
 
 // Modal handling functions
