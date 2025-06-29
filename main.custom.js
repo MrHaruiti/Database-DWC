@@ -64,6 +64,15 @@ departuresTableBody.addEventListener('click', (e) => {
 // Tab switching functionality
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded and parsed - attaching tab event listeners');
+  
+  // Load flights from localStorage
+  flightManager.load();
+  console.log('Loaded arrivals:', flightManager.arrivals.length);
+  console.log('Loaded departures:', flightManager.departures.length);
+
+  // Render flights
+  renderAll();
+
   const tabButtons = document.querySelectorAll('.tab-nav button');
   const tabs = document.querySelectorAll('.tab');
   console.log('Found tab buttons:', tabButtons.length);
