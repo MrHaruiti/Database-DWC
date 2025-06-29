@@ -180,6 +180,22 @@ flightForm.addEventListener('submit', async (e) => {
 
   try {
     await flightManager.addFlight(flight, getDepartureTimeFromModal);
+
+    // Synchronize departure flight for arrivals
+    if (!flight.to) {
+      const departureFlight = {
+        airline: flight.airline,
+        flight: flightManager.formatFlightNumber(flight.flight, (/^(EMIRATES AIRLINES|FLYDUBAI)$/i.test(flight.airline) ? -1 : 1)),
+        to: flight.from,
+        icao: flight.icao,
+        time: flight.time,
+        aircraft: flight.aircraft,
+        tps: flight.tps,
+        frequency: flight.frequency,
+      };
+      await flightManager.addFlight(departureFlight, getDepartureTimeFromModal);
+    }
+
     renderAll();
     alert('Flight added successfully!');
     flightForm.reset();
