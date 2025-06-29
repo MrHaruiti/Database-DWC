@@ -96,6 +96,33 @@ const importButton = document.getElementById('importButton');
 const exportJsonButton = document.getElementById('exportJsonButton');
 const exportXlsxButton = document.getElementById('exportXlsxButton');
 
+const flightForm = document.getElementById('flightForm');
+
+flightForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(flightForm);
+  const flight = {
+    airline: formData.get('airline'),
+    flight: formData.get('flight'),
+    from: formData.get('from'),
+    icao: formData.get('icao'),
+    time: formData.get('time'),
+    aircraft: formData.get('aircraft'),
+    tps: formData.get('tps'),
+    frequency: formData.get('frequency') || formData.get('freqType') || 'Diário',
+  };
+
+  try {
+    await flightManager.addFlight(flight, getDepartureTimeFromModal);
+    renderAll();
+    alert('Flight added successfully!');
+    flightForm.reset();
+  } catch (error) {
+    showErrorModal('Error adding flight: ' + error.message);
+  }
+});
+
 importButton.addEventListener('click', async () => {
   // Implement import functionality using flightManager
   const file = importFileInput.files[0];
