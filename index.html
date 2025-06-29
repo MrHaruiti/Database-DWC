@@ -165,6 +165,37 @@
     </div>
   </div>
 
+  <!-- Modal for departure time input -->
+  <div id="departureTimeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="departureTimeModalTitle" aria-describedby="departureTimeModalDesc">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close modal">&times;</button>
+      <h2 id="departureTimeModalTitle">Enter Departure Time</h2>
+      <div class="modal-body">
+        <label for="departureTimeInput">Departure Time:</label>
+        <input type="time" id="departureTimeInput" />
+        <p id="departureTimeError" class="modal-info" style="color: #ff6666; display: none;">Please enter a valid time.</p>
+      </div>
+      <div class="modal-actions">
+        <button id="departureTimeConfirm" class="confirm-button" disabled>Confirm</button>
+        <button id="departureTimeCancel" class="cancel-button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for error messages -->
+  <div id="errorModal" class="modal" role="alertdialog" aria-modal="true" aria-labelledby="errorModalTitle" aria-describedby="errorModalDesc">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close modal">&times;</button>
+      <h2 id="errorModalTitle">Error</h2>
+      <div class="modal-body" id="errorModalDesc">
+        <!-- Error message will be inserted here -->
+      </div>
+      <div class="modal-actions">
+        <button id="errorModalClose" class="confirm-button">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script type="module" src="main.custom.js"></script>
   <script type="module" src="main.js.part2.chunk1.js"></script>

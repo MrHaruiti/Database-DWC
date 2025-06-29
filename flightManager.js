@@ -26,7 +26,7 @@ export class FlightManager {
     return 120;
   }
 
-  addFlight(flight) {
+  async addFlight(flight, getDepartureTimeCallback) {
     const conflict = this.arrivals.some(f => f.time === flight.time && f.tps === flight.tps);
     if (conflict) {
       throw new Error('Conflito de horário no mesmo TPS!');
@@ -42,7 +42,10 @@ export class FlightManager {
 
     let depTime = '';
     if (/^(EMIRATES AIRLINES|FLYDUBAI)$/i.test(flight.airline)) {
-      depTime = prompt('Digite o horário do departure para ' + flight.airline + ':', flight.time);
+      if (!getDepartureTimeCallback) {
+        throw new Error('Departure time callback is required for this airline');
+      }
+      depTime = await getDepartureTimeCallback(flight.airline, flight.time);
       if (!depTime) {
         throw new Error('Horário de departure obrigatório para ' + flight.airline);
       }

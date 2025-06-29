@@ -5,6 +5,16 @@ const flightManager = new FlightManager();
 const arrivalsTableBody = document.querySelector('#arrivalsTable tbody');
 const departuresTableBody = document.querySelector('#departuresTable tbody');
 
+const departureTimeModal = document.getElementById('departureTimeModal');
+const departureTimeInput = document.getElementById('departureTimeInput');
+const departureTimeError = document.getElementById('departureTimeError');
+const departureTimeConfirm = document.getElementById('departureTimeConfirm');
+const departureTimeCancel = document.getElementById('departureTimeCancel');
+
+const errorModal = document.getElementById('errorModal');
+const errorModalDesc = document.getElementById('errorModalDesc');
+const errorModalClose = document.getElementById('errorModalClose');
+
 function clearTable(tableBody) {
   while (tableBody.firstChild) {
     tableBody.removeChild(tableBody.firstChild);
@@ -113,7 +123,7 @@ const exportXlsxButton = document.getElementById('exportXlsxButton');
 importButton.addEventListener('click', () => {
   const file = importFileInput.files[0];
   if (!file) {
-    alert('Please select a file to import.');
+    showErrorModal('Please select a file to import.');
     return;
   }
   const reader = new FileReader();
@@ -132,10 +142,10 @@ importButton.addEventListener('click', () => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         importFlights(jsonData);
       } else {
-        alert('Unsupported file format. Please select a JSON or XLSX file.');
+        showErrorModal('Unsupported file format. Please select a JSON or XLSX file.');
       }
     } catch (error) {
-      alert('Error importing file: ' + error.message);
+      showErrorModal('Error importing file: ' + error.message);
     }
   };
 
@@ -160,36 +170,98 @@ function importFlights(flights) {
     }
   });
   if (conflicts > 0) {
-    alert(conflicts + ' flights were not imported due to conflicts.');
+    showErrorModal(conflicts + ' flights were not imported due to conflicts.');
   }
   renderAll();
 }
 
-exportJsonButton.addEventListener('click', () => {
-  const data = {
-    arrivals: flightManager.arrivals,
-    departures: flightManager.departures,
-  };
-  const jsonStr = JSON.stringify(data, null, 2);
-  const blob = new Blob([jsonStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'flights.json';
-  a.click();
-  URL.revokeObjectURL(url);
+// Modal handling functions
+
+function openModal(modal) {
+  modal.style.display = 'flex';
+}
+
+function closeModal(modal) {
+  modal.style.display = 'none';
+}
+
+function showErrorModal(message) {
+  errorModalDesc.textContent = message;
+  openModal(errorModal);
+}
+
+// Departure time modal logic
+
+let departureTimeResolve;
+let departureTimeReject;
+
+departureTimeInput.addEventListener('input', () => {
+  if (departureTimeInput.value) {
+    departureTimeError.style.display = 'none';
+    departureTimeConfirm.disabled = false;
+  } else {
+    departureTimeError.style.display = 'block';
+    departureTimeConfirm.disabled = true;
+  }
 });
 
-exportXlsxButton.addEventListener('click', () => {
-  const wb = XLSX.utils.book_new();
+departureTimeConfirm.addEventListener('click', () => {
+  if (departureTimeInput.value) {
+    closeModal(departureTimeModal);
+    departureTimeResolve(departureTimeInput.value);
+  }
+});
 
-  const arrivalsSheet = XLSX.utils.json_to_sheet(flightManager.arrivals);
-  XLSX.utils.book_append_sheet(wb, arrivalsSheet, 'Arrivals');
+departureTimeCancel.addEventListener('click', () => {
+  closeModal(departureTimeModal);
+  departureTimeReject(new Error('Departure time input cancelled'));
+});
 
-  const departuresSheet = XLSX.utils.json_to_sheet(flightManager.departures);
-  XLSX.utils.book_append_sheet(wb, departuresSheet, 'Departures');
+departureTimeModal.querySelector('.modal-close').addEventListener('click', () => {
+  closeModal(departureTimeModal);
+  departureTimeReject(new Error('Departure time input cancelled'));
+});
 
-  XLSX.writeFile(wb, 'flights.xlsx');
+errorModalClose.addEventListener('click', () => {
+  closeModal(errorModal);
+});
+
+async function getDepartureTimeFromModal(airline, arrivalTime) {
+  departureTimeInput.value = arrivalTime || '';
+  departureTimeError.style.display = 'none';
+  departureTimeConfirm.disabled = !departureTimeInput.value;
+  openModal(departureTimeModal);
+  return new Promise((resolve, reject) => {
+    departureTimeResolve = resolve;
+    departureTimeReject = reject;
+  });
+}
+
+// Flight form submission
+
+const flightForm = document.getElementById('flightForm');
+
+flightForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(flightForm);
+  const flight = {
+    airline: formData.get('airline').trim(),
+    flight: formData.get('flight').trim(),
+    from: formData.get('from').trim(),
+    icao: formData.get('icao').trim(),
+    time: formData.get('time').trim(),
+    aircraft: formData.get('aircraft').trim(),
+    tps: formData.get('tps').trim(),
+    frequency: formData.get('freqType'),
+  };
+
+  try {
+    await flightManager.addFlight(flight, getDepartureTimeFromModal);
+    renderAll();
+    flightForm.reset();
+  } catch (error) {
+    showErrorModal(error.message);
+  }
 });
 
 // On page load, render all data
