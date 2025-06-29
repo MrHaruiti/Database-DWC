@@ -270,6 +270,10 @@ const flightForm = document.getElementById('flightForm');
 flightForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(flightForm);
+  let frequencyValue = formData.get('freqType');
+  if (!frequencyValue) {
+    frequencyValue = 'Diário';
+  }
   const flight = {
     airline: formData.get('airline').trim(),
     flight: formData.get('flight').trim(),
@@ -278,7 +282,7 @@ flightForm.addEventListener('submit', async (e) => {
     time: formData.get('time').trim(),
     aircraft: formData.get('aircraft').trim(),
     tps: formData.get('tps').trim(),
-    frequency: formData.get('freqType') || 'Diário',
+    frequency: frequencyValue,
   };
 
   try {
