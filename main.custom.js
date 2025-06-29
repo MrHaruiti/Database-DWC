@@ -97,11 +97,70 @@ const exportJsonButton = document.getElementById('exportJsonButton');
 const exportXlsxButton = document.getElementById('exportXlsxButton');
 
 importButton.addEventListener('click', async () => {
-  showErrorModal('Import functionality is disabled due to missing flightManager.');
+  // Implement import functionality using flightManager
+  const file = importFileInput.files[0];
+  if (!file) {
+    showErrorModal('Please select a file to import.');
+    return;
+  }
+  const reader = new FileReader();
+  const fileName = file.name.toLowerCase();
+
+  reader.onload = async (e) => {
+    try {
+      let data;
+      if (fileName.endsWith('.json')) {
+        data = JSON.parse(e.target.result);
+      } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        data = XLSX.utils.sheet_to_json(worksheet);
+      } else {
+        showErrorModal('Unsupported file format. Please select a JSON or XLSX file.');
+        return;
+      }
+      await importFlightsSequential(data);
+    } catch (error) {
+      showErrorModal('Error importing file: ' + error.message);
+    }
+  };
+
+  if (fileName.endsWith('.json')) {
+    reader.readAsText(file);
+  } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+    reader.readAsBinaryString(file);
+  }
 });
 
 async function importFlightsSequential(flights) {
-  showErrorModal('Import functionality is disabled due to missing flightManager.');
+  let conflicts = 0;
+  for (const flight of flights) {
+    try {
+      // Normalize frequency field if needed
+      if (!flight.frequency && flight.Frequência) {
+        flight.frequency = flight.Frequência;
+      }
+      // Check if flight already exists in arrivals
+      const exists = flightManager.arrivals.some(f =>
+        f.airline === flight.airline &&
+        f.flight === flight.flight &&
+        f.from === flight.from &&
+        f.tps === flight.tps &&
+        f.time === flight.time
+      );
+      if (exists) {
+        continue; // Skip duplicate
+      }
+      await flightManager.addFlight(flight, getDepartureTimeFromModal);
+    } catch (e) {
+      conflicts++;
+    }
+  }
+  if (conflicts > 0) {
+    showErrorModal(conflicts + ' flights were not imported due to conflicts.');
+  }
+  renderAll();
 }
 
 // Modal handling functions
