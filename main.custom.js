@@ -21,8 +21,19 @@ function clearTable(tableBody) {
   }
 }
 
+function sortFlightsByTime(flights) {
+  return flights.sort((a, b) => {
+    const timeA = a.time;
+    const timeB = b.time;
+    if (timeA < timeB) return -1;
+    if (timeA > timeB) return 1;
+    return 0;
+  });
+}
+
 function renderArrivals() {
   clearTable(arrivalsTableBody);
+  sortFlightsByTime(flightManager.arrivals);
   flightManager.arrivals.forEach((flight, index) => {
     const row = document.createElement('tr');
 
@@ -43,6 +54,7 @@ function renderArrivals() {
 
 function renderDepartures() {
   clearTable(departuresTableBody);
+  sortFlightsByTime(flightManager.departures);
   flightManager.departures.forEach((flight, index) => {
     const row = document.createElement('tr');
 
@@ -67,7 +79,19 @@ function renderAll() {
 }
 
 function deleteArrival(index) {
+  const flightToDelete = flightManager.arrivals[index];
   flightManager.arrivals.splice(index, 1);
+
+  // Find and delete corresponding departure flight
+  const depIndex = flightManager.departures.findIndex(depFlight => 
+    depFlight.airline === flightToDelete.airline &&
+    depFlight.flight === flightManager.formatFlightNumber(flightToDelete.flight, (/^(EMIRATES AIRLINES|FLYDUBAI)$/i.test(flightToDelete.airline) ? -1 : 1)) &&
+    depFlight.to === flightToDelete.from
+  );
+  if (depIndex !== -1) {
+    flightManager.departures.splice(depIndex, 1);
+  }
+
   flightManager.save();
   renderAll();
 }
