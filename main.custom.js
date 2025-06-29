@@ -1,9 +1,9 @@
 console.log('main.custom.js script loaded');
 
-// Removed import of flightManager.js due to missing file and 404 error
-// import { FlightManager } from './flightManager.js';
+// Re-enable import of flightManager.js now that it exists
+import { FlightManager } from './flightManager.js';
 
-// const flightManager = new FlightManager();
+const flightManager = new FlightManager();
 
 const arrivalsTableBody = document.querySelector('#arrivalsTable tbody');
 const departuresTableBody = document.querySelector('#departuresTable tbody');
