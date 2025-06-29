@@ -108,6 +108,42 @@ const backupButton = document.getElementById('backupButton');
 
 const flightForm = document.getElementById('flightForm');
 
+exportJsonButton.addEventListener('click', () => {
+  try {
+    const exportData = {
+      arrivals: flightManager.arrivals,
+      departures: flightManager.departures,
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "flight_export_" + new Date().toISOString() + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    alert('Exported JSON successfully!');
+  } catch (error) {
+    showErrorModal('Error exporting JSON: ' + error.message);
+  }
+});
+
+exportXlsxButton.addEventListener('click', () => {
+  try {
+    const wb = XLSX.utils.book_new();
+
+    const arrivalsSheet = XLSX.utils.json_to_sheet(flightManager.arrivals);
+    XLSX.utils.book_append_sheet(wb, arrivalsSheet, "Arrivals");
+
+    const departuresSheet = XLSX.utils.json_to_sheet(flightManager.departures);
+    XLSX.utils.book_append_sheet(wb, departuresSheet, "Departures");
+
+    XLSX.writeFile(wb, "flight_export_" + new Date().toISOString() + ".xlsx");
+    alert('Exported XLSX successfully!');
+  } catch (error) {
+    showErrorModal('Error exporting XLSX: ' + error.message);
+  }
+});
+
 backupButton.addEventListener('click', () => {
   try {
     const backupData = {
