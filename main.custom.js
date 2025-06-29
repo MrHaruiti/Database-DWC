@@ -35,6 +35,7 @@ function renderArrivals() {
   clearTable(arrivalsTableBody);
   sortFlightsByTime(flightManager.arrivals);
   flightManager.arrivals.forEach((flight, index) => {
+    const frequencyDisplay = flight.frequency || 'Diário';
     const row = document.createElement('tr');
 
     row.innerHTML = 
@@ -45,7 +46,7 @@ function renderArrivals() {
       '<td>' + flight.time + '</td>' +
       '<td>' + flight.aircraft + '</td>' +
       '<td>' + flight.tps + '</td>' +
-      '<td>' + flight.frequency + '</td>' +
+      '<td>' + frequencyDisplay + '</td>' +
       '<td><button data-index="' + index + '" class="delete-arrival">Delete</button></td>';
 
     arrivalsTableBody.appendChild(row);
@@ -56,6 +57,7 @@ function renderDepartures() {
   clearTable(departuresTableBody);
   sortFlightsByTime(flightManager.departures);
   flightManager.departures.forEach((flight, index) => {
+    const frequencyDisplay = flight.frequency || 'Diário';
     const row = document.createElement('tr');
 
     row.innerHTML = 
@@ -66,7 +68,7 @@ function renderDepartures() {
       '<td>' + flight.time + '</td>' +
       '<td>' + flight.aircraft + '</td>' +
       '<td>' + flight.tps + '</td>' +
-      '<td>' + flight.frequency + '</td>' +
+      '<td>' + frequencyDisplay + '</td>' +
       '<td><button data-index="' + index + '" class="delete-departure">Delete</button></td>';
 
     departuresTableBody.appendChild(row);
@@ -276,7 +278,7 @@ flightForm.addEventListener('submit', async (e) => {
     time: formData.get('time').trim(),
     aircraft: formData.get('aircraft').trim(),
     tps: formData.get('tps').trim(),
-    frequency: formData.get('freqType'),
+    frequency: formData.get('freqType') || 'Diário',
   };
 
   try {
