@@ -26,6 +26,26 @@ export class FlightManager {
     return 120;
   }
 
+  formatFlightNumber(originalFlightNum, increment) {
+    // Extract prefix, numeric part, and suffix
+    const match = originalFlightNum.match(/^(\D*)(\d+)(\D*)$/);
+    if (!match) {
+      // If no numeric part, just return original or incremented number as string
+      const num = parseInt(originalFlightNum);
+      if (isNaN(num)) return originalFlightNum;
+      return (num + increment).toString();
+    }
+    const prefix = match[1];
+    const numStr = match[2];
+    const suffix = match[3];
+    const numLength = numStr.length;
+    let num = parseInt(numStr);
+    num += increment;
+    if (num < 0) num = 0;
+    const numPadded = num.toString().padStart(numLength, '0');
+    return prefix + numPadded + suffix;
+  }
+
   async addFlight(flight, getDepartureTimeCallback) {
     const conflict = this.arrivals.some(f => f.time === flight.time && f.tps === flight.tps);
     if (conflict) {
@@ -35,9 +55,9 @@ export class FlightManager {
 
     let depFlightNum = '';
     if (/^(EMIRATES AIRLINES|FLYDUBAI)$/i.test(flight.airline)) {
-      depFlightNum = (parseInt(flight.flight) - 1).toString();
+      depFlightNum = this.formatFlightNumber(flight.flight, -1);
     } else {
-      depFlightNum = (parseInt(flight.flight) + 1).toString();
+      depFlightNum = this.formatFlightNumber(flight.flight, 1);
     }
 
     let depTime = '';
